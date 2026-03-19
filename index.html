@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的个人主页 | 探索与记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #0f172a; /* slate-900 */
+        }
+        .post-card:hover h2 {
+            color: #4f46e5; /* indigo-600 */
+        }
+        .sidebar-stat:hover {
+            color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- 极简导航 -->
+    <nav class="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+            <a href="#" class="font-bold text-lg tracking-tight">Blog</a>
+            <div class="flex gap-6 text-sm font-medium text-slate-600">
+                <a href="#" class="hover:text-indigo-600 transition-colors">首页</a>
+                <a href="#archives" class="hover:text-indigo-600 transition-colors">归档</a>
+                <a href="#categories" class="hover:text-indigo-600 transition-colors">分类</a>
+                <a href="#about" class="hover:text-indigo-600 transition-colors">关于</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 头部标题 -->
+    <header class="py-16 text-center">
+        <h1 class="text-3xl font-bold mb-2">我的个人主页</h1>
+        <p class="text-slate-500 text-sm">记录技术、物理与生活的点滴</p>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 pb-20">
+        <div class="flex flex-col md:flex-row gap-12">
+            
+            <!-- 文章列表区域 (左侧) -->
+            <div class="flex-1 space-y-12">
+                
+                <div class="py-20 text-center border border-dashed border-slate-200 rounded-2xl bg-white/50">
+                    <i class="fa-regular fa-folder-open text-4xl text-slate-200 mb-4 block"></i>
+                    <p class="text-slate-400 text-sm">文章正在准备中，敬请期待...</p>
+                </div>
+
+            </div>
+
+            <!-- 侧边栏 (右侧) -->
+            <aside class="w-full md:w-64 space-y-12">
+                
+                <!-- 个人信息 -->
+                <section class="text-center md:text-left">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Avatar" class="w-20 h-20 rounded-full mx-auto md:mx-0 mb-4 object-cover grayscale">
+                    <h3 class="text-lg font-bold mb-1">张三 (San Zhang)</h3>
+                    <p class="text-slate-500 text-xs mb-4">全栈开发 / 物理爱好者</p>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                        这是我的个人空间。在这里分享技术、物理相关的笔记与思考。
+                    </p>
+                    <div class="flex justify-center md:justify-start gap-4 text-slate-400">
+                        <a href="#" class="hover:text-indigo-600"><i class="fa-brands fa-github"></i></a>
+                        <a href="#" class="hover:text-indigo-600"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="hover:text-indigo-600"><i class="fa-solid fa-envelope"></i></a>
+                        <a href="#" class="hover:text-indigo-600"><i class="fa-solid fa-rss"></i></a>
+                    </div>
+                </section>
+
+                <!-- 统计数据 -->
+                <section id="archives" class="grid grid-cols-3 gap-4 border-y border-slate-200 py-6 text-center">
+                    <a href="#" class="sidebar-stat transition-colors">
+                        <div class="text-lg font-bold">54</div>
+                        <div class="text-[10px] text-slate-400 uppercase tracking-widest">文章</div>
+                    </a>
+                    <a href="#categories" class="sidebar-stat transition-colors border-x border-slate-100">
+                        <div class="text-lg font-bold">7</div>
+                        <div class="text-[10px] text-slate-400 uppercase tracking-widest">分类</div>
+                    </a>
+                    <a href="#tags" class="sidebar-stat transition-colors">
+                        <div class="text-lg font-bold">21</div>
+                        <div class="text-[10px] text-slate-400 uppercase tracking-widest">标签</div>
+                    </a>
+                </section>
+
+                <!-- 热门标签 -->
+                <section id="tags">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">热门标签</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="#" class="text-xs text-slate-600 hover:text-indigo-600">#React</a>
+                        <a href="#" class="text-xs text-slate-600 hover:text-indigo-600">#物理</a>
+                        <a href="#" class="text-xs text-slate-600 hover:text-indigo-600">#流水账</a>
+                        <a href="#" class="text-xs text-slate-600 hover:text-indigo-600">#Hugo</a>
+                        <a href="#" class="text-xs text-slate-600 hover:text-indigo-600">#摄影</a>
+                    </div>
+                </section>
+
+                <!-- 位置 -->
+                <section id="about">
+                    <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-location-dot"></i> 北京, 中国
+                    </p>
+                </section>
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- 极简页脚 -->
+    <footer class="py-12 border-t border-slate-200 text-center text-slate-400 text-[10px] uppercase tracking-widest">
+        <p>© 2026 张三. Powered by Tailwind CSS.</p>
+    </footer>
+
+</body>
+</html>
