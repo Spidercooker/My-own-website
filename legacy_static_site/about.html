@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我 | 我的个人主页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+
+    <!-- 极简导航 -->
+    <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+            <a href="index.html" class="font-bold text-lg tracking-tight hover:text-indigo-600 transition-colors">Blog</a>
+            <div class="flex items-center gap-6">
+                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-600 dark:text-slate-400">
+                    <a href="index.html" class="hover:text-indigo-600 transition-colors">首页</a>
+                    <a href="posts.html" class="hover:text-indigo-600 transition-colors">文章</a>
+                    <a href="about.html" class="text-indigo-600 font-bold transition-colors">关于</a>
+                </div>
+                <!-- 暗黑模式切换 -->
+                <button id="dark-mode-toggle" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-6 py-20 animate-fade-in-up">
+        <h1 class="text-4xl font-bold mb-12">关于我</h1>
+        
+        <div class="space-y-12 text-slate-600 dark:text-slate-300 leading-relaxed">
+            <section class="reveal active">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user text-indigo-500"></i> 我是谁
+                </h2>
+                <p>
+                    我是小千，游手好闲的大学生一枚，目前正在西安读大学，就一臭看动画的，会在这上面发一些杂七杂八的内容。
+                </p>
+            </section>
+
+            <section class="reveal">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-heart text-indigo-500"></i> 兴趣爱好
+                </h2>
+                <ul class="list-disc list-inside space-y-2">
+                    <li><strong>摄影：</strong> 喜欢用相机记录生活中的光影。</li>
+                    <li><strong>物理：</strong> 业余时间会阅读量子力学和相对论相关的书籍。</li>
+                    <li><strong>开源：</strong> 活跃于 GitHub，喜欢分享和学习优秀的开源项目。</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <!-- 极简页脚 -->
+    <footer class="py-16 border-t border-slate-200 dark:border-slate-800 text-center text-slate-400 text-[10px] uppercase tracking-widest">
+        <p>© 2026 张三. Crafted with <i class="fa-solid fa-heart text-red-400"></i> & Tailwind CSS.</p>
+    </footer>
+
+    <script>
+        // 暗黑模式切换
+        const toggleBtn = document.getElementById('dark-mode-toggle');
+        const html = document.documentElement;
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+        toggleBtn.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        });
+
+        // 滚动显示动画
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            const windowHeight = window.innerHeight;
+            revealElements.forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                if (elementTop < windowHeight - 50) {
+                    el.classList.add('active');
+                }
+            });
+        };
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    </script>
+</body>
+</html>

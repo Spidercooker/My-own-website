@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="关于我 | 我的个人主页">
+    <main class="max-w-3xl mx-auto px-6 py-20 animate-fade-in-up">
+        <h1 class="text-4xl font-bold mb-12 text-slate-900 dark:text-slate-100">关于我</h1>
+        
+        <div class="space-y-12 text-slate-600 dark:text-slate-300 leading-relaxed">
+            <section class="reveal active">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user text-indigo-500"></i> 我是谁
+                </h2>
+                <p>
+                    我是小千，大学生，喜欢看动画的，会发一些杂七杂八的内容。
+                </p>
+            </section>
+
+            <section class="reveal">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-heart text-indigo-500"></i> 兴趣爱好
+                </h2>
+                <ul class="list-disc list-inside space-y-2">
+                    <li><strong>摄影：</strong> 喜欢用相机记录生活中的光影。</li>
+                    <li><strong>动画：</strong> 有空的时候会看看动画。</li>
+                    <li><strong>游戏：</strong> 自从买了手柄之后，就沉浸在单机游戏的世界中无法自拔。</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+</Layout>
