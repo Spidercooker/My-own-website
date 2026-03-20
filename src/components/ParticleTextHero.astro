@@ -1,0 +1,323 @@
+---
+const {
+  defaultText = '小千的个人主页',
+  subtitle = '极简 · 互动 · 记录',
+  height = 280,
+} = Astro.props;
+---
+
+<section class="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 shadow-sm">
+  <div class="absolute inset-0">
+    <canvas id="particle-canvas" class="h-full w-full"></canvas>
+    <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/60 via-white/20 to-white/70 dark:from-slate-950/60 dark:via-slate-950/20 dark:to-slate-950/70"></div>
+  </div>
+
+  <div class="relative px-6 py-14 md:px-10" style={`min-height: ${height}px`}>
+    <div class="max-w-3xl">
+      <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/40 px-3 py-1 text-[11px] tracking-widest uppercase text-slate-500 dark:text-slate-400">
+        <span class="h-1.5 w-1.5 rounded-full bg-indigo-500"></span>
+        <span>{subtitle}</span>
+      </div>
+      <h1 class="mt-5 text-3xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+        <span id="particle-title" class="sr-only">{defaultText}</span>
+        {defaultText}
+      </h1>
+      <p class="mt-3 max-w-2xl text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+        鼠标或手指移动会影响粒子。你可以在下方输入框实时修改文字。
+      </p>
+
+      <div class="mt-7 flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div class="flex-1">
+          <label for="particle-input" class="sr-only">输入粒子文字</label>
+          <input
+            id="particle-input"
+            value={defaultText}
+            class="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/40 px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
+            maxlength="40"
+            placeholder="输入要显示的文字"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <div class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
+            最多 40 字；移动端用手指滑动。
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button id="particle-clear" type="button" class="h-11 rounded-xl border border-slate-200 dark:border-slate-800 px-4 text-sm text-slate-700 dark:text-slate-200 bg-white/70 dark:bg-slate-950/30 hover:bg-white dark:hover:bg-slate-950/50 transition-colors">
+            清空
+          </button>
+          <button id="particle-reset" type="button" class="h-11 rounded-xl bg-indigo-600 px-4 text-sm text-white hover:bg-indigo-700 active:scale-[0.99] transition">
+            恢复默认
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (() => {
+      const canvas = document.getElementById('particle-canvas');
+      const input = document.getElementById('particle-input');
+      const clearBtn = document.getElementById('particle-clear');
+      const resetBtn = document.getElementById('particle-reset');
+      const html = document.documentElement;
+
+      if (!(canvas instanceof HTMLCanvasElement) || !(input instanceof HTMLInputElement)) return;
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const ctx = canvas.getContext('2d', { alpha: true });
+      if (!ctx) return;
+
+      const off = document.createElement('canvas');
+      const offCtx = off.getContext('2d', { willReadFrequently: true });
+      if (!offCtx) return;
+
+      const state = {
+        dpr: 1,
+        w: 0,
+        h: 0,
+        text: input.value.trim() || input.value,
+        isDark: html.classList.contains('dark'),
+        mouseX: -9999,
+        mouseY: -9999,
+        mouseActive: false,
+      };
+
+      const palette = () => {
+        const isDark = html.classList.contains('dark');
+        return {
+          bg: isDark ? 'rgba(2,6,23,0)' : 'rgba(255,255,255,0)',
+          dot: isDark ? 'rgba(226,232,240,0.82)' : 'rgba(15,23,42,0.72)',
+          glow: isDark ? 'rgba(99,102,241,0.10)' : 'rgba(99,102,241,0.08)',
+        };
+      };
+
+      function clamp(n, a, b) {
+        return Math.max(a, Math.min(b, n));
+      }
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        state.dpr = dpr;
+        state.w = Math.max(1, Math.floor(rect.width));
+        state.h = Math.max(1, Math.floor(rect.height));
+
+        canvas.width = Math.floor(state.w * dpr);
+        canvas.height = Math.floor(state.h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        off.width = Math.floor(state.w * dpr);
+        off.height = Math.floor(state.h * dpr);
+        offCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function getFontSize() {
+        const base = Math.min(state.w, state.h);
+        const ideal = base * 0.34;
+        return clamp(Math.floor(ideal), 34, 92);
+      }
+
+      function samplePoints(text) {
+        const fontSize = getFontSize();
+        offCtx.clearRect(0, 0, state.w, state.h);
+        offCtx.fillStyle = '#fff';
+        offCtx.textAlign = 'center';
+        offCtx.textBaseline = 'middle';
+        offCtx.font = `700 ${fontSize}px "Noto Sans SC", ui-sans-serif, system-ui`;
+
+        const lines = String(text || '').split('\n').slice(0, 2);
+        const lineGap = Math.floor(fontSize * 1.15);
+        const centerY = Math.floor(state.h * 0.46);
+
+        if (lines.length === 1) {
+          offCtx.fillText(lines[0], state.w / 2, centerY);
+        } else {
+          offCtx.fillText(lines[0], state.w / 2, centerY - Math.floor(lineGap / 2));
+          offCtx.fillText(lines[1], state.w / 2, centerY + Math.floor(lineGap / 2));
+        }
+
+        const img = offCtx.getImageData(0, 0, state.w, state.h);
+        const data = img.data;
+        const points = [];
+        const gapBase = state.w < 520 ? 7 : 6;
+        const gap = clamp(gapBase + Math.floor(fontSize / 36), 6, 10);
+
+        for (let y = 0; y < state.h; y += gap) {
+          for (let x = 0; x < state.w; x += gap) {
+            const idx = (y * state.w + x) * 4 + 3;
+            if (data[idx] > 140) points.push({ x, y });
+          }
+        }
+
+        return { points, gap };
+      }
+
+      let particles = [];
+      let raf = 0;
+      let lastBuildKey = '';
+
+      function build(text) {
+        const t = (text || '').trim() || ' ';
+        const { points, gap } = samplePoints(t);
+        const key = `${t}|${state.w}|${state.h}|${gap}|${html.classList.contains('dark') ? 'd' : 'l'}`;
+        if (key === lastBuildKey) return;
+        lastBuildKey = key;
+
+        const cx = state.w / 2;
+        const cy = state.h / 2;
+
+        const next = new Array(points.length);
+        for (let i = 0; i < points.length; i++) {
+          const p = particles[i];
+          const base = points[i];
+          if (p) {
+            p.bx = base.x;
+            p.by = base.y;
+            next[i] = p;
+          } else {
+            next[i] = {
+              x: cx + (Math.random() - 0.5) * state.w * 0.12,
+              y: cy + (Math.random() - 0.5) * state.h * 0.12,
+              vx: 0,
+              vy: 0,
+              bx: base.x,
+              by: base.y,
+              r: gap < 7 ? 1.2 : 1.35,
+            };
+          }
+        }
+        particles = next;
+      }
+
+      function tick() {
+        raf = requestAnimationFrame(tick);
+        const { bg, dot, glow } = palette();
+
+        ctx.clearRect(0, 0, state.w, state.h);
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, state.w, state.h);
+
+        const mx = state.mouseX;
+        const my = state.mouseY;
+        const radius = state.w < 520 ? 72 : 96;
+        const repel = state.w < 520 ? 0.48 : 0.58;
+        const spring = 0.055;
+        const friction = 0.86;
+
+        ctx.fillStyle = glow;
+        if (state.mouseActive) {
+          ctx.beginPath();
+          ctx.arc(mx, my, radius * 0.65, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = dot;
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          const ax = (p.bx - p.x) * spring;
+          const ay = (p.by - p.y) * spring;
+
+          let fx = 0;
+          let fy = 0;
+          if (state.mouseActive) {
+            const dx = p.x - mx;
+            const dy = p.y - my;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < radius * radius) {
+              const d = Math.sqrt(d2) || 1;
+              const f = (1 - d / radius) * repel;
+              fx = (dx / d) * f;
+              fy = (dy / d) * f;
+            }
+          }
+
+          p.vx = (p.vx + ax + fx) * friction;
+          p.vy = (p.vy + ay + fy) * friction;
+          p.x += p.vx;
+          p.y += p.vy;
+
+          const x = p.x;
+          const y = p.y;
+          if (x < -20 || x > state.w + 20 || y < -20 || y > state.h + 20) continue;
+          ctx.beginPath();
+          ctx.arc(x, y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function onPointerMove(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = ('clientX' in e ? e.clientX : 0) - rect.left;
+        const y = ('clientY' in e ? e.clientY : 0) - rect.top;
+        state.mouseX = x;
+        state.mouseY = y;
+        state.mouseActive = true;
+      }
+
+      function onPointerLeave() {
+        state.mouseActive = false;
+        state.mouseX = -9999;
+        state.mouseY = -9999;
+      }
+
+      let inputTimer = 0;
+      function scheduleBuild(value) {
+        window.clearTimeout(inputTimer);
+        inputTimer = window.setTimeout(() => build(value), 90);
+      }
+
+      function init() {
+        resize();
+        build(input.value);
+        if (!reduceMotion) {
+          cancelAnimationFrame(raf);
+          tick();
+        } else {
+          const { dot } = palette();
+          ctx.clearRect(0, 0, state.w, state.h);
+          ctx.fillStyle = dot;
+          for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            ctx.beginPath();
+            ctx.arc(p.bx, p.by, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      const ro = new ResizeObserver(() => init());
+      ro.observe(canvas);
+
+      canvas.addEventListener('pointermove', onPointerMove, { passive: true });
+      canvas.addEventListener('pointerdown', onPointerMove, { passive: true });
+      canvas.addEventListener('pointerleave', onPointerLeave, { passive: true });
+
+      input.addEventListener('input', () => scheduleBuild(input.value));
+      clearBtn?.addEventListener('click', () => {
+        input.value = '';
+        scheduleBuild('');
+        input.focus();
+      });
+      resetBtn?.addEventListener('click', () => {
+        input.value = {JSON.stringify(defaultText)};
+        scheduleBuild(input.value);
+        input.focus();
+      });
+
+      const mo = new MutationObserver(() => {
+        const isDark = html.classList.contains('dark');
+        if (isDark === state.isDark) return;
+        state.isDark = isDark;
+        lastBuildKey = '';
+        build(input.value);
+      });
+      mo.observe(html, { attributes: true, attributeFilter: ['class'] });
+
+      window.addEventListener('orientationchange', () => init(), { passive: true });
+
+      init();
+    })();
+  </script>
+</section>
+
