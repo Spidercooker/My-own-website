@@ -300,7 +300,7 @@ const {
         input.focus();
       });
       resetBtn?.addEventListener('click', () => {
-        input.value = {JSON.stringify(defaultText)};
+        input.value = ${JSON.stringify(defaultText)};
         scheduleBuild(input.value);
         input.focus();
       });
