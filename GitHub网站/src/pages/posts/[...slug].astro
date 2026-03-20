@@ -1,0 +1,47 @@
+---
+import { type CollectionEntry, getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('blog');
+	return posts.map((post) => ({
+		params: { slug: post.slug },
+		props: post,
+	}));
+}
+type Props = CollectionEntry<'blog'>;
+
+const post = Astro.props;
+const { Content } = await post.render();
+---
+
+<Layout title={post.data.title}>
+	<main class="max-w-3xl mx-auto px-6 py-20 animate-fade-in-up">
+		<div class="flex items-center gap-3 text-xs text-slate-400 mb-8">
+			<span>{post.data.pubDate.toLocaleDateString()}</span>
+			<span>•</span>
+			<span>约 {post.body.length} 字</span>
+		</div>
+		
+		<h1 class="text-4xl font-bold mb-12 text-slate-900 dark:text-slate-100">{post.data.title}</h1>
+		
+		<div class="prose dark:prose-invert prose-slate max-w-none">
+			<Content />
+		</div>
+
+		<div class="mt-20 pt-8 border-t border-slate-200 dark:border-slate-800">
+			<a href="/posts" class="text-indigo-600 hover:text-indigo-500 transition-colors flex items-center gap-2">
+				<i class="fa-solid fa-arrow-left"></i> 返回文章列表
+			</a>
+		</div>
+	</main>
+</Layout>
+
+<style is:global>
+	.prose h2 { @apply text-2xl font-bold mt-12 mb-6 text-slate-900 dark:text-slate-100; }
+	.prose p { @apply mb-6 leading-relaxed text-slate-600 dark:text-slate-300; }
+	.prose ul { @apply list-disc list-inside mb-6 space-y-2 text-slate-600 dark:text-slate-300; }
+	.prose strong { @apply text-slate-900 dark:text-slate-100 font-bold; }
+	.prose code { @apply bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm font-mono text-indigo-600 dark:text-indigo-400; }
+	.prose pre { @apply bg-slate-900 text-slate-100 p-6 rounded-2xl mb-8 overflow-x-auto; }
+</style>
