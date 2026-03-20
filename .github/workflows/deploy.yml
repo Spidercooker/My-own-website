@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ] # 当代码推送到 main 分支时触发
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -12,15 +12,30 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # 解决 Node.js 20 弃用警告
     steps:
       - name: Checkout your repository
         uses: actions/checkout@v4
 
-      - name: Install, build, and upload your site
-        uses: withastro/action@v2
-        # 该 Action 会自动执行 npm install && npm run build
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        # 使用 npm ci 保证根据 package-lock.json 干净安装
+        # 使用 chmod 赋予 astro 可执行权限作为双重保险
+        run: |
+          npm ci
+          chmod +x ./node_modules/.bin/astro || true
+
+      - name: Build Astro site
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
 
   deploy:
     needs: build
