@@ -5,22 +5,26 @@ import { getCollection } from 'astro:content';
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
+const base = import.meta.env.BASE_URL;
 ---
 
 <Layout title="文章 | 我的个人主页">
-	<main class="max-w-3xl mx-auto px-6 py-20 animate-fade-in-up">
-		<h1 class="text-4xl font-bold mb-12 text-slate-900 dark:text-slate-100">文章</h1>
-		
-		<div class="space-y-12">
+	<main class="max-w-5xl mx-auto px-6 py-16">
+		<header class="mb-10">
+			<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">文章</h1>
+			<p class="mt-3 text-sm text-slate-500 dark:text-slate-400">按时间排序，点击即可阅读。</p>
+		</header>
+
+		<div class="space-y-6">
 			{posts.map((post) => (
-				<article class="post-card reveal active">
+				<article class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 p-6 hover:bg-white dark:hover:bg-slate-900/80 transition-colors">
 					<div class="flex items-center gap-3 text-xs text-slate-400 mb-3">
 						<span>{post.data.pubDate.toLocaleDateString()}</span>
 						<span>•</span>
 						<span>约 {post.body.length} 字</span>
 					</div>
-					<a href={`/posts/${post.slug}`}>
-						<h2 class="text-xl font-bold mb-3 transition-colors hover:text-indigo-600 dark:text-slate-100">
+					<a href={`${base}posts/${post.slug}/`} class="group">
+						<h2 class="text-lg md:text-xl font-bold mb-2 text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 transition-colors">
 							{post.data.title}
 						</h2>
 					</a>
